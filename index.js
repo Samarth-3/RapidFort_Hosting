@@ -3,22 +3,17 @@ const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
 const libre = require("libreoffice-convert");
-const bodyParser = require("body-parser");
 const cors = require("cors");
 const dotenv = require("dotenv");
-const app = express();
 
 dotenv.config();
-const PORT = process.env.PORT ;
 
-// app.use(bodyParser.json());
-app.use(express.static(path.resolve(__dirname, "build")));
-// app.set("view engine", "ejs");
-// app.set("views", path.join(__dirname, "views"));
+const app = express();
+
+const PORT = process.env.PORT || 3000;
 
 app.use(
   cors({
-    // origin: "http://localhost:3000"
     methods: ["GET", "POST"],
     allowedHeaders: ["Content-Type"],
   })
@@ -35,7 +30,7 @@ if (!fs.existsSync(outputDir)) {
 }
 
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, path.join(__dirname, "uploads")),
+  destination: (req, file, cb) => cb(null, uploadsDir),
   filename: (req, file, cb) =>
     cb(null, Date.now() + path.extname(file.originalname)),
 });
@@ -53,45 +48,44 @@ const docxtopdfdemoupload = multer({
   fileFilter: docxtopdfdemo,
 });
 
-// app.get("/docxtopdfdemo", (req, res) => {
-//   res.render("docxtopdfdemo", {
-//     title: "DOCX to PDF Converter - Free Media Tools",
-//   });
-// });
+app.post(
+  "/api/docxtopdfdemo",
+  docxtopdfdemoupload.single("file"),
+  (req, res) => {
+    if (req.file) {
+      console.log(`Uploaded file path: ${req.file.path}`);
+      const file = fs.readFileSync(req.file.path);
+      const outputFilePath = path.join(outputDir, `${Date.now()}_output.pdf`);
 
-app.post("/docxtopdfdemo", docxtopdfdemoupload.single("file"), (req, res) => {
-  if (req.file) {
-    console.log(`Uploaded file path: ${req.file.path}`);
-    const file = fs.readFileSync(req.file.path);
-    const outputFilePath = path.join(
-      __dirname,
-      "output",
-      `${Date.now()}_output.pdf`
-    );
-
-    libre.convert(file, ".pdf", undefined, (err, done) => {
-      if (err) {
-        fs.unlinkSync(req.file.path);
-        return res.status(500).send("Error in conversion process");
-      }
-      fs.writeFileSync(outputFilePath, done);
-      res.download(outputFilePath, (err) => {
+      libre.convert(file, ".pdf", undefined, (err, done) => {
         if (err) {
-          console.error("Error during file download:", err);
+          fs.unlinkSync(req.file.path);
+          return res.status(500).send("Error in conversion process");
         }
-        // Cleanup
-        fs.unlinkSync(req.file.path);
-        fs.unlinkSync(outputFilePath);
+        fs.writeFileSync(outputFilePath, done);
+        res.download(outputFilePath, (err) => {
+          if (err) {
+            console.error("Error during file download:", err);
+          }
+          // Cleanup
+          fs.unlinkSync(req.file.path);
+          fs.unlinkSync(outputFilePath);
+        });
       });
-    });
-  } else {
-    res.status(400).send("No file uploaded");
+    } else {
+      res.status(400).send("No file uploaded");
+    }
   }
-});
-app.get("*", (req, res) => {
-  res.sendFile(path.resolve("build", "index.html"));
-});
-// Start server
-app.listen(PORT, () =>
-  console.log(`Server running on http://localhost:${PORT}`)
 );
+
+app.use(express.static(path.resolve(__dirname, "build")));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.resolve(__dirname, "build", "index.html"));
+});
+
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
+
+module.exports = app;
