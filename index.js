@@ -5,10 +5,11 @@ const path = require("path");
 const libre = require("libreoffice-convert");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-
+const dotenv = require("dotenv");
 const app = express();
-const PORT = 8080;
+const PORT = process.env.PORT || 5000;
 
+dotenv.config();
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, "build")));
 app.set("view engine", "ejs");
@@ -86,7 +87,7 @@ app.post("/docxtopdfdemo", docxtopdfdemoupload.single("file"), (req, res) => {
     res.status(400).send("No file uploaded");
   }
 });
-app.get("*", (req, res ) => {
+app.get("*", (req, res) => {
   res.sendFile(path.resolve("build", "index.html"));
 });
 // Start server
