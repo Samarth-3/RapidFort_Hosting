@@ -86,7 +86,9 @@ app.post("/docxtopdfdemo", docxtopdfdemoupload.single("file"), (req, res) => {
     res.status(400).send("No file uploaded");
   }
 });
-
+app.get("*", (req, res ) => {
+  res.sendFile(path.resolve("build", "index.html"));
+});
 // Start server
 app.listen(PORT, () =>
   console.log(`Server running on http://localhost:${PORT}`)
