@@ -13,7 +13,7 @@ const PORT = process.env.PORT ;
 
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, "build")));
-app.set("view engine", "ejs");
+// app.set("view engine", "ejs");
 // app.set("views", path.join(__dirname, "views"));
 
 app.use(
@@ -53,11 +53,11 @@ const docxtopdfdemoupload = multer({
   fileFilter: docxtopdfdemo,
 });
 
-app.get("/docxtopdfdemo", (req, res) => {
-  res.render("docxtopdfdemo", {
-    title: "DOCX to PDF Converter - Free Media Tools",
-  });
-});
+// app.get("/docxtopdfdemo", (req, res) => {
+//   res.render("docxtopdfdemo", {
+//     title: "DOCX to PDF Converter - Free Media Tools",
+//   });
+// });
 
 app.post("/docxtopdfdemo", docxtopdfdemoupload.single("file"), (req, res) => {
   if (req.file) {
