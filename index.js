@@ -11,8 +11,8 @@ const app = express();
 dotenv.config();
 const PORT = process.env.PORT ;
 
-app.use(bodyParser.json());
-app.use(express.static(path.join(__dirname, "build")));
+// app.use(bodyParser.json());
+app.use(express.static(path.resolve(__dirname, "build")));
 // app.set("view engine", "ejs");
 // app.set("views", path.join(__dirname, "views"));
 
