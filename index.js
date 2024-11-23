@@ -12,7 +12,7 @@ const PORT = 8080;
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, "build")));
 app.set("view engine", "ejs");
-app.set("views", path.join(__dirname, "views"));
+// app.set("views", path.join(__dirname, "views"));
 
 app.use(
   cors({
